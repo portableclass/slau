@@ -7,21 +7,21 @@ Decomposition::Decomposition(const Matrix& any)
 {
     // 0. Checking of sizes. If matrix isn't square then error out!
     assert((any.get_cSize() == any.get_rSize()) && "ERROR_MATRIX_IS_NOT_SQUARE");
-    // assert((any.get_cSize() == 0) && "ERROR_MATRIX_IS_EMPTY");
+    assert((any.get_cSize() != 0) && "ERROR_MATRIX_IS_EMPTY");
 
-    // 1. The data is set there:
-    this->size = any.get_cSize();
-    this->values = { 10.0, -0.1, 1.0, 10.1 };   //  <- Заменить на LU разложение
     // По умолчанию: (L\U) = { 10.0, -0.1, 1.0, 10.1 } - LU разложение для матрицы А = {10.0, -1.0, 1.0, 10.0}
 
-    Matrix result, U, L;
-    double temp;
-    double temp1;
-    double temp2;
+    unsigned int size = any.get_cSize();
+    this->LU = Matrix(size, size);
 
-    for (int i = 0; i < this->size; i++)
+    Matrix L(size, size);
+    Matrix U(size, size);
+    double temp;
+
+    // Zeroing of Matrix elements U and L. Setting the value 1 to the main diagonal of the Matrix L
+    for (size_t i = 0; i < size; i++)
     {
-        for (int j = 0; j < this->size; j++)
+        for (size_t j = 0; j < size; j++)
         {
             U.set_elem(i, j, 0);
             L.set_elem(i, j, 0);
@@ -29,75 +29,79 @@ Decomposition::Decomposition(const Matrix& any)
         L.set_elem(i, i, 1);
     }
 
-    for (int i = 0; i < this->size; i++)
+    for (size_t i = 0; i < size; i++)
     {
-        for (int j = 0; j < this->size; j++)
+        for (size_t j = 0; j < size; j++)
         {
             temp = 0;
 
-            if ( i <= j )
+            if (i <= j)
             {
-                for (size_t k = 0; k < (i - 1); k++)
-                {
-                    temp += L.get_elem(i, j) * U.get_elem(k, j);
-                }
+                // Determination of the elements of the Matrix U
+                for (size_t k = 0; k < i; k++)
+                    temp += L.get_elem(i, k) * U.get_elem(k, j);
                 U.set_elem(i, j, any.get_elem(i, j) - temp);
-            } 
-            else if ( i > j )
+            }
+            else
             {
-                for (size_t k = 0; k < (j - 1); k++)
-                {
-                    temp += L.get_elem(i, j) * U.get_elem(k, j);
-                }
+                // Determination of the elements of the Matrix L
+                for (size_t k = 0; k < i; k++)
+                    temp += L.get_elem(i, k) * U.get_elem(k, j);
                 L.set_elem(i, j, (any.get_elem(i, j) - temp) / U.get_elem(j, j));
             }
 
         }
     }
 
-    
-
-    /*result.set_elem(0, 0, U.get_elem(0, 0));
-    result.set_elem(0, 1, L.get_elem(0, 1));
-    result.set_elem(1, 0, U.get_elem(1, 0));
-    result.set_elem(1, 1, U.get_elem(1, 1));*/
-
-    std::cout << std::endl;
-    std::cout << "sorce" << std::endl;
-    for (int i = 0; i < any.get_rSize(); i++)
+    // Writing the LU Matrix in compact form
+    for (size_t i = 0; i < size; i++)
     {
-        for (int j = 0; j < any.get_cSize(); j++)
-            std::cout << any.get_elem(i, j) << " ";
-        std::cout << std::endl;
+        for (size_t j = 0; j < size; j++)
+        {
+            if (i < j)
+                this->LU.set_elem(i, j, U.get_elem(i, j));
+            else if (i > j)
+                this->LU.set_elem(i, j, L.get_elem(i, j));
+        }
+        this->LU.set_elem(i, i, U.get_elem(i, i));
     }
 
-    std::cout << std::endl;
-    std::cout << "LU" <<std::endl;
-    for (int i = 0; i < result.get_rSize(); i++)
-    {
-        for (int j = 0; j < result.get_cSize(); j++)
-            std::cout << result.get_elem(i, j) << " ";
-        std::cout << std::endl;
-    }
+    //std::cout << std::endl;
+    //std::cout << "source" << std::endl;
+    //for (int i = 0; i < any.get_rSize(); i++)
+    //{
+    //    for (int j = 0; j < any.get_cSize(); j++)
+    //        std::cout << any.get_elem(i, j) << " ";
+    //    std::cout << std::endl;
+    //}
 
-    std::cout << std::endl;
-    std::cout << "L" << std::endl;
-    for (int i = 0; i < L.get_rSize(); i++)
-    {
-        for (int j = 0; j < L.get_cSize(); j++)
-            std::cout << L.get_elem(i, j) << " ";
-        std::cout << std::endl;
-    }
-    
+    //std::cout << std::endl;
+    //std::cout << "comp" << std::endl;
+    //for (int i = 0; i < this->LU.get_rSize(); i++)
+    //{
+    //    for (int j = 0; j < this->LU.get_cSize(); j++)
+    //        std::cout << this->LU.get_elem(i, j) << " ";
+    //    std::cout << std::endl;
+    //}
 
-    std::cout << std::endl;
-    std::cout << "U" << std::endl;
-    for (int i = 0; i < U.get_rSize(); i++)
-    {
-        for (int j = 0; j < U.get_cSize(); j++)
-            std::cout << U.get_elem(i, j) << " ";
-        std::cout << std::endl;
-    }
+    //std::cout << std::endl;
+    //std::cout << "L" << std::endl;
+    //for (int i = 0; i < L.get_rSize(); i++)
+    //{
+    //    for (int j = 0; j < L.get_cSize(); j++)
+    //        std::cout << L.get_elem(i, j) << " ";
+    //    std::cout << std::endl;
+    //}
+    //
+
+    //std::cout << std::endl;
+    //std::cout << "U" << std::endl;
+    //for (int i = 0; i < U.get_rSize(); i++)
+    //{
+    //    for (int j = 0; j < U.get_cSize(); j++)
+    //        std::cout << U.get_elem(i, j) << " ";
+    //    std::cout << std::endl;
+    //}
 
 }
 
@@ -105,8 +109,8 @@ Decomposition::Decomposition(const Matrix& any)
 // 2) Destructor:
 Decomposition::~Decomposition()
 {
-    this->values.clear();
-    this->values.shrink_to_fit();
+    /*this->values.clear();
+    this->values.shrink_to_fit();*/
 }
 
 
@@ -114,30 +118,57 @@ Decomposition::~Decomposition()
 const double Decomposition::get_elemL(unsigned int row, unsigned int col) const
 {
     // 0. Checking of the indexes!
-    assert(((row < this->size) && (col < this->size)) && "ERROR_MATRIX_INDEX_IS_OUT_SIZE");
+    assert(((row < get_size()) && (col < get_size())) && "ERROR_MATRIX_INDEX_IS_OUT_SIZE");
 
-    return 0.0;
+    return get_L().get_elem(row, col);
 }
 
 const double Decomposition::get_elemU(unsigned int row, unsigned int col) const
 {
     // 0. Checking of the indexes!
-    assert(((row < this->size) && (col < this->size)) && "ERROR_MATRIX_INDEX_IS_OUT_SIZE");
+    assert(((row < get_size()) && (col < get_size())) && "ERROR_MATRIX_INDEX_IS_OUT_SIZE");
 
-    return 0.0;
+    return get_U().get_elem(row, col);
 }
 
 const double Decomposition::get_size() const
 {
-    return this->size;
+    return this->LU.get_cSize();
 }
 
 const Matrix Decomposition::get_L() const
 {
-    return Matrix();
+    Matrix L(get_size(), get_size());
+
+    for (size_t i = 0; i < get_size(); i++)
+    {
+        for (size_t j = 0; j < get_size(); j++)
+        {
+            if (i < j)
+                L.set_elem(i, j, 0);
+            else if (i > j)
+                L.set_elem(i, j, this->LU.get_elem(i, j));
+        }
+        L.set_elem(i, i, 1);
+    }
+
+    return L;
 }
 
-const Matrix Decomposition::get_U(const Matrix& any) const
+const Matrix Decomposition::get_U() const
 {
-    return Matrix();
+    Matrix U(get_size(), get_size());
+
+    for (size_t i = 0; i < get_size(); i++)
+    {
+        for (size_t j = 0; j < get_size(); j++)
+        {
+            if (i <= j)
+                U.set_elem(i, j, this->LU.get_elem(i, j));
+            else if (i > j)
+                U.set_elem(i, j, 0);
+        }
+    }
+
+    return U;
 }

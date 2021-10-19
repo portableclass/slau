@@ -3,8 +3,10 @@
 
 #include <iostream>
 #include <vector>
+#include "Solver.h"
 #include "Matrix.h"
 #include "Decomposition.h"
+
 //#define NDEBUG 
 
 int main()
@@ -19,17 +21,24 @@ int main()
 
     Matrix a;
     Matrix b;
-    //Matrix result = a * b;
+    Matrix result = a * b;
+    Solver x(a);
 
-    //std::cout << "Matrix mul:" << std::endl;
-    //for (int i = 0; i < result.get_rSize(); i++)
-    //{
-    //    for (int j = 0; j < result.get_cSize(); j++)
-    //        std::cout << result.get_elem(i, j) << " ";
-    //    std::cout << std::endl;
-    //}
+    /*std::cout << "matrix mul:" << std::endl;
+    for (int i = 0; i < a.get_rSize(); i++)
+    {
+        for (int j = 0; j < a.get_cSize(); j++)
+            std::cout << a.get_elem(i, j) << " ";
+        std::cout << std::endl;
+    }*/
 
-    Decomposition c = a;
+    Decomposition c(a);
+
+
+    std::cout << "Default Matrix: " << std::endl;
+    x.outputMatrix();
+    std::cout << "LU decomposition written in compact form: " << std::endl;
+    x.outputDecomposition(c);
 
     return 0;
 }

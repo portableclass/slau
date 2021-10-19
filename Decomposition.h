@@ -11,8 +11,9 @@ class Decomposition
 {
 private:
 	// 0) Values:
-	std::vector <double> values;
-	unsigned int size;
+	/*std::vector <double> values;
+	unsigned int size;*/
+	Matrix LU;
 
 public:
 	// 1) Constructors:
@@ -27,5 +28,5 @@ public:
 	const double get_size() const;
 
 	const Matrix get_L() const; // Можно ли подставить const Matrix& (т.е. ссылку на локальный объект)?
-	const Matrix get_U(const Matrix& Any) const; // Можно ли подставить const Matrix& (т.е. ссылку на локальный объект)?
+	const Matrix get_U() const; // Можно ли подставить const Matrix& (т.е. ссылку на локальный объект)?
 };

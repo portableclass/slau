@@ -2,6 +2,8 @@
 
 #include "Matrix.h"
 #include "Decomposition.h"
+#include <vector>
+
 class Solver
 {
 private:
@@ -13,7 +15,20 @@ private:
 	// Можно также добавить флаг, хранящий способ задания матрицы системы или возможность инициализации объектом разложения.
 	// А можно просто использовать объект разложения только в случае вызова солвера LU разложением.
 
+	Matrix A;
+	std::vector <double> b;
+
 public:
+	// 1) Сonstructors:
+	Solver(const Matrix& any);
+
+	// 2) Destructior:
+
+	// 3) Geters and seters:
+
+	// 4) Other methods:
+	void outputMatrix();
+	void outputDecomposition(const Decomposition& any);
 	
 };
 
