@@ -2,10 +2,7 @@
 //
 
 #include <iostream>
-#include <vector>
 #include "Solver.h"
-#include "Matrix.h"
-#include "Decomposition.h"
 
 //#define NDEBUG 
 
@@ -19,26 +16,52 @@ int main()
     // Отключить все макросы необходимо добавив дерективу дял препроцессора в этом файле.
     // Добавление директивы пропусти добавление всех строк содержащих assert.
 
-    Matrix a;
-    Matrix b;
-    Matrix result = a * b;
-    Solver x(a);
+    /*Matrix o;
+    Matrix i;
+    Matrix result = o * i;
 
-    /*std::cout << "matrix mul:" << std::endl;
-    for (int i = 0; i < a.get_rSize(); i++)
+    std::cout << "Matrix mul:" << std::endl;
+    for (int i = 0; i < result.get_rSize(); i++)
     {
-        for (int j = 0; j < a.get_cSize(); j++)
-            std::cout << a.get_elem(i, j) << " ";
+        for (int j = 0; j < result.get_cSize(); j++)
+            std::cout << result.get_elem(i, j) << " ";
         std::cout << std::endl;
     }*/
 
-    Decomposition c(a);
+    Matrix a(3, 3);
 
+    a.set_elem(0, 0, 2);
+    a.set_elem(0, 1, 1);
+    a.set_elem(0, 2, 1);
+    a.set_elem(1, 0, 1);
+    a.set_elem(1, 1, -1);
+    a.set_elem(1, 2, 0);
+    a.set_elem(2, 0, 3);
+    a.set_elem(2, 1, -1);
+    a.set_elem(2, 2, 2);
+
+    Matrix b(3, 1);
+
+    b.set_elem(0, 0, 2);
+    b.set_elem(1, 0, -2);
+    b.set_elem(2, 0, 2);
+
+    Solver x(a, b);
+    Decomposition LU(a);
+    Solver y(LU, b);
 
     std::cout << "Default Matrix: " << std::endl;
     x.outputMatrix();
     std::cout << "LU decomposition written in compact form: " << std::endl;
-    x.outputDecomposition(c);
+    y.outputMatrix();
+
+    Solver g(LU, b);
+
+    std::cout << "cramer by daun seraphim: " << std::endl;
+    x.solveCramer();
+
+    std::cout << "LU by daun Lexa: " << std::endl;
+    g.solveLU();
 
     return 0;
 }

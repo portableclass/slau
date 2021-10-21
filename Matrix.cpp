@@ -1,5 +1,11 @@
 #include "Matrix.h"
+#include <iostream>
+#include <vector>
+#include <string>
 #include <cassert>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
 
 unsigned int get_row2swap(const unsigned int index_diag, const Matrix& Any)
 // Функция осуществляет поиск номера строки на которую необходимо заменить рассматриваемую,
@@ -44,6 +50,21 @@ bool swap_rows(const unsigned int index_diag, Matrix& Any)
 	return swap_flag;
 }
 
+//void column_reset(const unsigned int index_diag, Matrix& Any)
+//{
+//	double swaped_value;
+//	for (size_t row = index_diag + 1; row < Any.get_rSize(); row++)
+//	{
+//		swaped_value = Any.get_elem(row, index_diag);
+//		Any.set_elem(row, index_diag, 0.0);
+//
+//		for (size_t col = row; col < Any.get_cSize(); col++)
+//		{
+//			// add(Any, row, col, -swaped_value * Any.get_elem(index_diag, col));
+//			Any.set_elem(row, col, Any.get_elem(row, col) + -swaped_value * Any.get_elem(index_diag, col));
+//		}
+//	}
+//}
 void column_reset(const unsigned int index_diag, Matrix& Any)
 {
 	double swaped_value;
@@ -52,7 +73,7 @@ void column_reset(const unsigned int index_diag, Matrix& Any)
 		swaped_value = Any.get_elem(row, index_diag);
 		Any.set_elem(row, index_diag, 0.0);
 
-		for (size_t col = row; col < Any.get_cSize(); col++)
+		for (size_t col = index_diag + 1; col < Any.get_cSize(); col++)
 		{
 			// add(Any, row, col, -swaped_value * Any.get_elem(index_diag, col));
 			Any.set_elem(row, col, Any.get_elem(row, col) + -swaped_value * Any.get_elem(index_diag, col));
@@ -238,6 +259,77 @@ const double Matrix::norm() const
 	return value_max;
 }
 
+Matrix read(std::string fullway2data)
+{
+	std::ifstream inputfile;
+	inputfile.open(fullway2data);
+
+	Matrix Res;
+
+	if (inputfile.is_open())
+	{
+		std::string buff_s;
+		double buff_d;
+		std::vector <std::vector<double>> buff_data;
+		std::vector <double> buff_data_row;
+
+		while (getline(inputfile, buff_s))
+		{
+			std::istringstream buff_ss(buff_s);
+
+			while (buff_ss >> buff_d)
+			{
+				buff_data_row.push_back(buff_d);
+			}
+
+			buff_data.push_back(buff_data_row);
+			buff_data_row.clear();
+		}
+
+		Res = Matrix(buff_data.size(), buff_data.at(0).size());
+
+		for (size_t row = 0; row < Res.get_rSize(); row++)
+		{
+			assert((buff_data.at(row).size() == Res.get_cSize()) && "ERROR_COPIED_MATRIX_COLUMNS_SIZES_SHOULD_BE_EQUAL");
+
+			if (buff_data.at(row).size() != Res.get_cSize())
+			{
+				std::cout << "ERROR: copying matrix is failed! Process was stopped!" << std::endl;
+
+				return Res;
+			}
+
+			for (size_t col = 0; col < Res.get_cSize(); col++)
+			{
+				Res.set_elem(row, col, buff_data.at(row).at(col));
+			}
+		}
+	}
+	else
+	{
+		std::cout << "ERROR: copying matrix is failed! File isn't opened!" << std::endl;
+	}
+
+	return Res;
+}
+
+void print(const Matrix& Any, unsigned int precicion)
+{
+	if ((Any.get_rSize() == 0) || (Any.get_cSize() == 0))
+	{
+		std::cout << "WARNING: printed matrix is empty!" << std::endl;
+	}
+
+	for (size_t i = 0; i < Any.get_rSize(); i++)
+	{
+		for (size_t j = 0; j < Any.get_cSize(); j++)
+		{
+			std::cout << std::setprecision(precicion) << std::scientific << Any.get_elem(i, j) << "		";
+		}
+		std::cout << std::endl;
+	}
+}
+
 Matrix& Matrix::operator=(const Matrix& Any)
 {
 	// Использование перегрузки опреатора Matrix& Matrix::operator=(const Matrix& Any),
@@ -297,12 +389,12 @@ Matrix operator-(const Matrix& left, const Matrix& right)
 Matrix operator*(const Matrix& left, const Matrix& right)
 {
 	// 0. Checking of the sizes:
-	assert((left.get_cSize() == right.get_cSize()) && "ERROR_MATRIXES_SIZES_SHOULD_BE_EQUAL");
+	assert((left.get_cSize() == right.get_rSize()) && "ERROR_MATRIXES_SIZES_SHOULD_BE_EQUAL");
 
 	Matrix result(left.get_rSize(), right.get_cSize());
 
-	for (size_t i = 0; i < left.get_rSize(); i++) {
-		for (size_t j = 0; j < right.get_cSize(); j++) {
+	for (size_t i = 0; i < right.get_cSize(); i++) {
+		for (size_t j = 0; j < left.get_rSize(); j++) {
 			result.set_elem(j, i, 0);
 			for (size_t k = 0; k < left.get_cSize(); k++) {
 				result.set_elem(j, i, (result.get_elem(j, i) + (left.get_elem(j, k) * right.get_elem(k, i))));

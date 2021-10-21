@@ -66,42 +66,42 @@ Decomposition::Decomposition(const Matrix& any)
         this->LU.set_elem(i, i, U.get_elem(i, i));
     }
 
-    //std::cout << std::endl;
-    //std::cout << "source" << std::endl;
-    //for (int i = 0; i < any.get_rSize(); i++)
-    //{
-    //    for (int j = 0; j < any.get_cSize(); j++)
-    //        std::cout << any.get_elem(i, j) << " ";
-    //    std::cout << std::endl;
-    //}
+    /*std::cout << std::endl;
+    std::cout << "source" << std::endl;
+    for (int i = 0; i < any.get_rSize(); i++)
+    {
+        for (int j = 0; j < any.get_cSize(); j++)
+            std::cout << any.get_elem(i, j) << " ";
+        std::cout << std::endl;
+    }
 
-    //std::cout << std::endl;
-    //std::cout << "comp" << std::endl;
-    //for (int i = 0; i < this->LU.get_rSize(); i++)
-    //{
-    //    for (int j = 0; j < this->LU.get_cSize(); j++)
-    //        std::cout << this->LU.get_elem(i, j) << " ";
-    //    std::cout << std::endl;
-    //}
+    std::cout << std::endl;
+    std::cout << "comp" << std::endl;
+    for (int i = 0; i < this->LU.get_rSize(); i++)
+    {
+        for (int j = 0; j < this->LU.get_cSize(); j++)
+            std::cout << this->LU.get_elem(i, j) << " ";
+        std::cout << std::endl;
+    }
 
-    //std::cout << std::endl;
-    //std::cout << "L" << std::endl;
-    //for (int i = 0; i < L.get_rSize(); i++)
-    //{
-    //    for (int j = 0; j < L.get_cSize(); j++)
-    //        std::cout << L.get_elem(i, j) << " ";
-    //    std::cout << std::endl;
-    //}
-    //
+    std::cout << std::endl;
+    std::cout << "L" << std::endl;
+    for (int i = 0; i < L.get_rSize(); i++)
+    {
+        for (int j = 0; j < L.get_cSize(); j++)
+            std::cout << L.get_elem(i, j) << " ";
+        std::cout << std::endl;
+    }
+    
 
-    //std::cout << std::endl;
-    //std::cout << "U" << std::endl;
-    //for (int i = 0; i < U.get_rSize(); i++)
-    //{
-    //    for (int j = 0; j < U.get_cSize(); j++)
-    //        std::cout << U.get_elem(i, j) << " ";
-    //    std::cout << std::endl;
-    //}
+    std::cout << std::endl;
+    std::cout << "U" << std::endl;
+    for (int i = 0; i < U.get_rSize(); i++)
+    {
+        for (int j = 0; j < U.get_cSize(); j++)
+            std::cout << U.get_elem(i, j) << " ";
+        std::cout << std::endl;
+    }*/
 
 }
 
@@ -152,6 +152,21 @@ const Matrix Decomposition::get_L() const
         L.set_elem(i, i, 1);
     }
 
+    /*unsigned int size = L.get_cSize();
+
+    std::cout << std::endl;
+    std::cout << "L" << std::endl;
+    for (size_t i = 0; i < size; i++)
+    {
+        for (size_t j = 0; j < size; j++)
+        {
+            std::cout.width(6);
+            std::cout << L.get_elem(i, j) << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;*/
+
     return L;
 }
 
@@ -170,5 +185,25 @@ const Matrix Decomposition::get_U() const
         }
     }
 
+    unsigned int size = U.get_cSize();
+
+    /*std::cout << std::endl;
+    std::cout << "U" << std::endl;
+    for (size_t i = 0; i < size; i++)
+    {
+        for (size_t j = 0; j < size; j++)
+        {
+            std::cout.width(6);
+            std::cout << U.get_elem(i, j) << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;*/
+
     return U;
+}
+
+const Matrix Decomposition::get_LU() const
+{
+    return this->LU;
 }
