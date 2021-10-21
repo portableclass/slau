@@ -29,5 +29,5 @@ public:
 
 	const Matrix get_L() const; // Можно ли подставить const Matrix& (т.е. ссылку на локальный объект)?
 	const Matrix get_U() const; // Можно ли подставить const Matrix& (т.е. ссылку на локальный объект)?
-	const Matrix get_LU() const;
+	const Matrix get_compactLU() const;
 };

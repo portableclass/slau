@@ -182,10 +182,8 @@ const double Matrix::det() const
 
 	while (index_diag < Copy.get_rSize())
 	{
-		// Проверка на нулевой диагональный элемент:
 		if (Copy.get_elem(index_diag, index_diag) == 0.0)
 		{
-			// Поиск ненулевого элента в столбце, лежащего ниже
 //**********// call swap_rows(...)
 			unsigned int index2swap = index_diag;
 			while ((index2swap < Copy.get_rSize()) && (Copy.get_elem(index2swap, index_diag) == 0.0))
@@ -193,14 +191,12 @@ const double Matrix::det() const
 				index2swap = index2swap + 1;
 			}
 
-			// Проверка иссключения, если все элементы - нулевые => det = 0
 			// swap_rows(...) -> false => return det_value = 0.0;
 			// swap_rows(...) -> true => det_value = det_value * (-1.0);
 			if (index2swap == Copy.get_rSize())
 			{
 				return det_value = 0.0;
 			}
-			// Перестановка строк местами:
 			else
 			{
 				double buffer_value;
@@ -211,34 +207,35 @@ const double Matrix::det() const
 					Copy.set_elem(index2swap, col, buffer_value);
 				}
 
-				det_value = det_value * (-1.0); // т.к. при перестанове строк необходимо поменять определитель местами
+				det_value = det_value * (-1.0);
 			}
 		}
 
-		// Процесс исключения (будет запущен, только если) det != 0
+//******// call row_sub(...)
 		value_diag = Copy.get_elem(index_diag, index_diag);
 
 		det_value = det_value * value_diag;
 
-		// Деление строки на диагональный элемент:
+
 		for (size_t col = index_diag; col < Copy.get_cSize(); col++)
 		{
 			Copy.set_elem(index_diag, col, Copy.get_elem(index_diag, col) / value_diag);
 		}
+		//******// end call row_sub(...)
 
-		// Исключение элементов лежащих ниже диагональных:
-//******// call column_reset(...)
+		//******// call column_reset(...)
 		double swaped_value;
 		for (size_t row = index_diag + 1; row < Copy.get_rSize(); row++)
 		{
 			swaped_value = Copy.get_elem(row, index_diag);
 			Copy.set_elem(row, index_diag, 0.0);
 
-			for (size_t col = row; col < Copy.get_cSize(); col++)
+			for (size_t col = index_diag + 1; col < Copy.get_cSize(); col++)
 			{
 				add(Copy, row, col, -swaped_value * Copy.get_elem(index_diag, col));
 			}
 		}
+		//******// end call column_reset(...)
 
 		index_diag = index_diag + 1;
 	}
@@ -383,7 +380,18 @@ Matrix operator-(const Matrix& left, const Matrix& right)
 	assert((left.get_cSize() != 0) && "ERROR_MATRIXES_SIZES_SHOULD_BE_NO_ZERO");
 	assert((left.get_rSize() != 0) && "ERROR_MATRIXES_SIZES_SHOULD_BE_NO_ZERO");
 
-	return Matrix();
+	// 1. The matrix result is created there:
+	Matrix result(left.get_rSize(), left.get_cSize());
+
+	for (size_t j = 0; j < right.get_cSize(); j++)
+	{
+		for (size_t i = 0; i < right.get_rSize(); i++)
+		{
+			result.set_elem(i, j, left.get_elem(i, j) - right.get_elem(i, j));
+		}
+	}
+
+	return result;
 }
 
 Matrix operator*(const Matrix& left, const Matrix& right)
@@ -404,52 +412,3 @@ Matrix operator*(const Matrix& left, const Matrix& right)
 
 	return result;
 }
-
-
-
-//Matrix operator*(const Matrix& left, const Matrix& right)
-//{
-//	// 0. Checking of the sizes:
-//	assert((left.get_cSize() == right.get_cSize()) && "ERROR_MATRIXES_SIZES_SHOULD_BE_EQUAL");
-//
-//	Matrix result;
-//
-//	for (size_t i = 0; i < left.get_rSize(); i++) {
-//		for (size_t j = 0; j < right.get_cSize(); j++) {
-//			result.set_elem(i, j, 0);
-//			for (size_t k = 0; k < left.get_cSize(); k++) {
-//				std::cout << "iter num i:" << i << std::endl;
-//				std::cout << "iter num j:" << j << std::endl;
-//				std::cout << result.get_elem(i, j) << " += "; std::cout << left.get_elem(i, k) << " * "; std::cout << right.get_elem(k, j) << " = ";
-//				result.set_elem(i, j, (result.get_elem(i, j) + (left.get_elem(i, k) * right.get_elem(k, j))));
-//				std::cout << result.get_elem(i, j) << std::endl;
-//			}
-//		}
-//	}
-//
-//
-//
-//	return result;
-//}
-
-
-//Matrix operator*(const Matrix& left, const Matrix& right) {// 0. Checking of the sizes:
-//	assert((left.get_cSize() == right.get_rSize()) && "ERROR_NUMBERS_LEFT_MATRIX_COLUMNS_AND_RIGHT_MATRIX_ROWS_SHOULD_BE_EQUAL");
-//	assert((left.get_cSize() != 0) && "ERROR_MATRIXES_SIZES_SHOULD_BE_NO_ZERO");
-//	assert((left.get_rSize() != 0) && (right.get_cSize() != 0) && "ERROR_MATRIXES_SIZES_SHOULD_BE_NO_ZERO");
-//
-//	Matrix result(left.get_rSize(), right.get_cSize());
-//
-//	for (size_t col = 0; col < right.get_cSize(); col++)
-//	{
-//		for (size_t row = 0; row < left.get_rSize(); row++) {
-//			result.set_elem(row, col, 0);
-//			for (size_t i = 0; i < left.get_cSize(); i++)
-//			{
-//				result.set_elem(row, col, result.get_elem(row, col) + left.get_elem(row, i) * right.get_elem(i, col));
-//				// add(result, row, col, left.get_elem(row, i) * right.get_elem(i, col));
-//			}
-//		}
-//	}
-//	return result;
-//}

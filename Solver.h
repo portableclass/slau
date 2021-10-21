@@ -31,7 +31,8 @@ public:
 	void outputMatrix();
 	void solveCramer();
 	void solveLU();
-	Matrix inverseMatrix(const Matrix& any);
+	Matrix reverseMoveL(const Matrix& any);
+	Matrix reverseMoveU(const Matrix& any, const Matrix& vectorY);
 
 
 };

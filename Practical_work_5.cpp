@@ -28,7 +28,7 @@ int main()
         std::cout << std::endl;
     }*/
 
-    Matrix a(3, 3);
+    /*Matrix a(3, 3);
 
     a.set_elem(0, 0, 2);
     a.set_elem(0, 1, 1);
@@ -44,24 +44,36 @@ int main()
 
     b.set_elem(0, 0, 2);
     b.set_elem(1, 0, -2);
-    b.set_elem(2, 0, 2);
+    b.set_elem(2, 0, 2);*/
+
+    Matrix a(2, 2);
+
+    a.set_elem(0, 0, 5);
+    a.set_elem(0, 1, 2);
+    a.set_elem(1, 0, 2);
+    a.set_elem(1, 1, 1);
+
+    Matrix b(2, 1);
+
+    b.set_elem(0, 0, 7);
+    b.set_elem(1, 0, 9);
 
     Solver x(a, b);
     Decomposition LU(a);
     Solver y(LU, b);
+
+    std::cout << "det: " << a.det() << std::endl;
 
     std::cout << "Default Matrix: " << std::endl;
     x.outputMatrix();
     std::cout << "LU decomposition written in compact form: " << std::endl;
     y.outputMatrix();
 
-    Solver g(LU, b);
-
     std::cout << "cramer by daun seraphim: " << std::endl;
     x.solveCramer();
 
     std::cout << "LU by daun Lexa: " << std::endl;
-    g.solveLU();
+    y.solveLU();
 
     return 0;
 }

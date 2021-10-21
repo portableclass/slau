@@ -203,7 +203,7 @@ const Matrix Decomposition::get_U() const
     return U;
 }
 
-const Matrix Decomposition::get_LU() const
+const Matrix Decomposition::get_compactLU() const
 {
     return this->LU;
 }
