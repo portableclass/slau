@@ -15,7 +15,7 @@ private:
 	// Можно также добавить флаг, хранящий способ задания матрицы системы или возможность инициализации объектом разложения.
 	// А можно просто использовать объект разложения только в случае вызова солвера LU разложением.
 
-	Matrix A, b;
+	Matrix A, b, L, U;
 	/*std::vector <double> solveK;*/
 
 public:
@@ -24,16 +24,12 @@ public:
 	Solver(const Decomposition& any, const Matrix& vectorB);
 
 	// 2) Destructior:
+	~Solver();
 
 	// 3) Geters and seters:
-	//const std::vector <double> get_solveK() const;
+
 	// 4) Other methods:
-	void outputMatrix();
-	void solveCramer();
-	void solveLU();
-	Matrix reverseMoveL(const Matrix& any);
-	Matrix reverseMoveU(const Matrix& any, const Matrix& vectorY);
-
-
+	Matrix solveCramer();
+	Matrix solveLU();
 };
 

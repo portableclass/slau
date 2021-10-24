@@ -1,141 +1,87 @@
 #include "Solver.h"
 
 // 1) Constructors:
-Solver::Solver(const Matrix& any, const Matrix& vectorB)
+Solver::Solver(const Matrix& any, const Matrix& vectorB) 
 {
     this->A = any;
     this->b = vectorB;
 }
 Solver::Solver(const Decomposition& any, const Matrix& vectorB)
 {
+    this->L = any.get_L();
+    this->U = any.get_U();
     this->A = any.get_compactLU();
     this->b = vectorB;
 }
 
-void Solver::outputMatrix()
-{
-    unsigned int row = this->A.get_rSize();
-    unsigned int col = this->A.get_cSize();
+// 2) Destructior:
+Solver::~Solver() {}
 
-    std::cout << std::endl;
-    for (size_t i = 0; i < row; i++)
-    {
-        for (size_t j = 0; j < col; j++)
-        {
-            std::cout.width(6);
-            std::cout << this->A.get_elem(i, j) << " ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
+// 3) Geters and seters:
 
-void Solver::solveCramer() {
+// 4) Other methods:
+Matrix Solver::solveCramer() {
 
-    unsigned int size = this->A.get_rSize();
-    Matrix* a = new Matrix[size];
+    const unsigned int size = this->A.get_rSize();
     const double bigDet = this->A.det();
     double* detI = new double[size];
-
-    std::vector <double> x;
-    x.resize(size);
+    Matrix* arrayA = new Matrix[size];
+    Matrix x(this->b.get_rSize(), this->b.get_cSize());
 
     for (size_t i = 0; i < size; i++)
     {
-        a[i] = this->A;
-        a[i].set_column(i, this->b);
-        detI[i] = a[i].det();
-        x.at(i) = detI[i] / bigDet;
-        std::cout << x.at(i) << std::endl;
+        arrayA[i] = this->A;
+        arrayA[i].set_column(i, this->b);
+        detI[i] = arrayA[i].det();
+        x.set_elem(i, 0, detI[i] / bigDet);
     }
+
+    return x;
 }
 
-void Solver::solveLU()
+Matrix Solver::solveLU()
 {
-    unsigned int size = this->A.get_rSize();
-    Matrix L(size, size);
-    Matrix U(size, size);
-    Matrix y(size, this->b.get_cSize());
-    Matrix x(size, this->b.get_cSize());
-
-    for (size_t i = 0; i < size; i++)
-    {
-        for (size_t j = 0; j < size; j++)
+    if (this->A.get_elem(0, 0) == 0) {
+        // required = the number of the row in which A[required][0] != 0 
+        int required;
+        for (required = 1; required < this->A.get_rSize(); required++)
         {
-            if (i < j)
-                L.set_elem(i, j, 0);
-            else if (i > j)
-                L.set_elem(i, j, this->A.get_elem(i, j));
-        }
-        L.set_elem(i, i, 1);
-    }
-
-    for (size_t i = 0; i < size; i++)
-    {
-        for (size_t j = 0; j < size; j++)
-        {
-            if (i <= j)
-                U.set_elem(i, j, this->A.get_elem(i, j));
-            else if (i > j)
-                U.set_elem(i, j, 0);
+            if (this->A.get_elem(required, 0) != 0) {
+                double temp;
+                for (size_t col = 0; col < this->A.get_cSize(); col++)
+                {
+                    temp = this->A.get_elem(required, col);
+                    this->A.set_elem(required, col, this->A.get_elem(required + 1, col));
+                    this->A.set_elem(required + 1, col, temp);
+                }
+                break;
+            }
         }
     }
 
-    y = reverseMoveL(L);
-    x = reverseMoveU(U, y);
-
-    Solver p(x, L);
-    p.outputMatrix();
-}
-
-Matrix Solver::reverseMoveL(const Matrix& any)
-{
-    Matrix input = any;
-    unsigned int size = input.get_rSize();
+    const unsigned int size = this->A.get_rSize();
     Matrix y(this->b.get_rSize(), this->b.get_cSize());
+    Matrix x(this->b.get_rSize(), this->b.get_cSize());
 
+    // reverse move for matrix L
     y.set_elem(0, 0, this->b.get_elem(0, 0));
-
-    for (size_t k = 1; k < size; k++)
+    for (size_t k = 1; k < this->L.get_rSize(); k++)
     {
         y.set_elem(k, 0, this->b.get_elem(k, 0));
         for (size_t p = 0; p < k; p++)
-            y.set_elem(k, 0, y.get_elem(k, 0) - input.get_elem(k, p) * y.get_elem(p, 0));
+            y.set_elem(k, 0, y.get_elem(k, 0) - this->L.get_elem(k, p) * y.get_elem(p, 0));
     }
 
-    /*std::cout << "y "<< "\n";
-    Solver e(y, input);
-    e.outputMatrix();
-    std::cout << "L " << "\n";
-    Solver i(input, input);
-    i.outputMatrix();*/
-
-    return y;
-}
-
-Matrix Solver::reverseMoveU(const Matrix& any, const Matrix& vectorY)
-{
-    Matrix input = any;
-    Matrix y = vectorY;
-    int size = input.get_rSize() - 1;
-    Matrix x(this->b.get_rSize(), this->b.get_cSize());
-
-    x.set_elem(size, 0, y.get_elem(size, 0) / input.get_elem(size, size));
-
-    for (int k = size - 1; k >= 0; k--)
+    // reverse move for matrix U
+    const unsigned int sizeForX = this->U.get_rSize() - 1;
+    x.set_elem(sizeForX, 0, y.get_elem(sizeForX, 0) / this->U.get_elem(sizeForX, sizeForX));
+    for (int k = sizeForX - 1; k >= 0; k--)
     {
         x.set_elem(k, 0, y.get_elem(k, 0));
-        for (int p = k + 1; p < size + 1; p++)
-            x.set_elem(k, 0, x.get_elem(k, 0) - input.get_elem(k, p) * x.get_elem(p, 0));
-        x.set_elem(k, 0, x.get_elem(k, 0) / input.get_elem(k, k));
+        for (size_t p = k + 1; p < sizeForX + 1; p++)
+            x.set_elem(k, 0, x.get_elem(k, 0) - this->U.get_elem(k, p) * x.get_elem(p, 0));
+        x.set_elem(k, 0, x.get_elem(k, 0) / this->U.get_elem(k, k));
     }
-
-    /*std::cout << "x " << "\n";
-    Solver e(x, input);
-    e.outputMatrix();
-    std::cout << "U " << "\n";
-    Solver i(input, input);
-    i.outputMatrix();*/
 
     return x;
 }

@@ -11,7 +11,7 @@ Decomposition::Decomposition(const Matrix& any)
 
     // По умолчанию: (L\U) = { 10.0, -0.1, 1.0, 10.1 } - LU разложение для матрицы А = {10.0, -1.0, 1.0, 10.0}
 
-    unsigned int size = any.get_cSize();
+    const unsigned int size = any.get_cSize();
     this->LU = Matrix(size, size);
 
     Matrix L(size, size);
@@ -107,11 +107,7 @@ Decomposition::Decomposition(const Matrix& any)
 
 
 // 2) Destructor:
-Decomposition::~Decomposition()
-{
-    /*this->values.clear();
-    this->values.shrink_to_fit();*/
-}
+Decomposition::~Decomposition() {}
 
 
 // 3) Geters and seters:

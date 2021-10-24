@@ -3,8 +3,15 @@
 
 #include <iostream>
 #include "Solver.h"
+#include <iomanip>
+#include <fstream>
+#include <sstream>
+#include <cassert>
 
 //#define NDEBUG 
+
+const Matrix read(std::string fullway2data);
+void print(const Matrix& Any, unsigned int precicion);
 
 int main()
 {
@@ -16,64 +23,115 @@ int main()
     // Отключить все макросы необходимо добавив дерективу дял препроцессора в этом файле.
     // Добавление директивы пропусти добавление всех строк содержащих assert.
 
-    /*Matrix o;
-    Matrix i;
-    Matrix result = o * i;
+    std::string fullway2data = "C:\\Users\\YASH\\Downloads\\Файлы программы\\input.txt";
+    Matrix A = read(fullway2data);
+    Matrix x_exist(A.get_cSize(), 1);
 
-    std::cout << "Matrix mul:" << std::endl;
-    for (int i = 0; i < result.get_rSize(); i++)
+    // filling x_exist with values from 1 to the number of columns of matrix A
+    unsigned int temp = 0;
+    for (size_t i = 0; i < x_exist.get_rSize(); i++)
     {
-        for (int j = 0; j < result.get_cSize(); j++)
-            std::cout << result.get_elem(i, j) << " ";
-        std::cout << std::endl;
-    }*/
+        temp = i + 1;
+        x_exist.set_elem(i, 0, temp);
+    }
 
-    /*Matrix a(3, 3);
+    // setting the values of the vector of the right part
+    Matrix b = A * x_exist;
 
-    a.set_elem(0, 0, 2);
-    a.set_elem(0, 1, 1);
-    a.set_elem(0, 2, 1);
-    a.set_elem(1, 0, 1);
-    a.set_elem(1, 1, -1);
-    a.set_elem(1, 2, 0);
-    a.set_elem(2, 0, 3);
-    a.set_elem(2, 1, -1);
-    a.set_elem(2, 2, 2);
+    Solver cramer_A(A, b);
+    Decomposition decA(A);
+    Solver LU_A(decA, b);
 
-    Matrix b(3, 1);
+    std::cout << std::endl;
+    std::cout << "Cramer: " << std::endl;
+    Matrix x_Cramer = cramer_A.solveCramer();
+    print(x_Cramer, 16);
 
-    b.set_elem(0, 0, 2);
-    b.set_elem(1, 0, -2);
-    b.set_elem(2, 0, 2);*/
+    std::cout << std::endl;
+    std::cout << "LU: " << std::endl;
+    Matrix x_LU = LU_A.solveLU();
+    print(x_LU, 16);
 
-    Matrix a(2, 2);
+    const double normCramer = (x_exist - x_Cramer).norm();
+    const double normLU = (x_exist - x_LU).norm();
+    const double accuracy = (x_Cramer - x_LU).norm();
 
-    a.set_elem(0, 0, 5);
-    a.set_elem(0, 1, 2);
-    a.set_elem(1, 0, 2);
-    a.set_elem(1, 1, 1);
-
-    Matrix b(2, 1);
-
-    b.set_elem(0, 0, 7);
-    b.set_elem(1, 0, 9);
-
-    Solver x(a, b);
-    Decomposition LU(a);
-    Solver y(LU, b);
-
-    std::cout << "det: " << a.det() << std::endl;
-
-    std::cout << "Default Matrix: " << std::endl;
-    x.outputMatrix();
-    std::cout << "LU decomposition written in compact form: " << std::endl;
-    y.outputMatrix();
-
-    std::cout << "cramer by daun seraphim: " << std::endl;
-    x.solveCramer();
-
-    std::cout << "LU by daun Lexa: " << std::endl;
-    y.solveLU();
+    std::cout << std::endl;
+    std::cout << "1) ||x_exist - x_Cramer || = " << normCramer << std::endl;
+    std::cout << "2) ||x_exist - x_LU || = " << normLU << std::endl;
+    std::cout << "3) ||x_Cramer - x_LU || = " << accuracy << std::endl;
 
     return 0;
+}
+
+// LOCAL FUNS
+const Matrix read(std::string fullway2data)
+{
+    std::ifstream inputfile;
+    inputfile.open(fullway2data);
+
+    Matrix Res;
+
+    if (inputfile.is_open())
+    {
+        std::string buff_s;
+        double buff_d;
+        std::vector <std::vector<double>> buff_data;
+        std::vector <double> buff_data_row;
+
+        while (getline(inputfile, buff_s))
+        {
+            std::istringstream buff_ss(buff_s);
+
+            while (buff_ss >> buff_d)
+            {
+                buff_data_row.push_back(buff_d);
+            }
+
+            buff_data.push_back(buff_data_row);
+            buff_data_row.clear();
+        }
+
+        Res = Matrix(buff_data.size(), buff_data.at(0).size());
+
+        for (size_t row = 0; row < Res.get_rSize(); row++)
+        {
+            assert((buff_data.at(row).size() == Res.get_cSize()) && "ERROR_COPIED_MATRIX_COLUMNS_SIZES_SHOULD_BE_EQUAL");
+
+            if (buff_data.at(row).size() != Res.get_cSize())
+            {
+                std::cout << "ERROR: copying matrix is failed! Process was stopped!" << std::endl;
+
+                return Res;
+            }
+
+            for (size_t col = 0; col < Res.get_cSize(); col++)
+            {
+                Res.set_elem(row, col, buff_data.at(row).at(col));
+            }
+        }
+    }
+    else
+    {
+        std::cout << "ERROR: copying matrix is failed! File isn't opened!" << std::endl;
+    }
+
+    return Res;
+}
+
+void print(const Matrix& Any, unsigned int precicion)
+{
+    if ((Any.get_rSize() == 0) || (Any.get_cSize() == 0))
+    {
+        std::cout << "WARNING: printed matrix is empty!" << std::endl;
+    }
+
+    for (size_t i = 0; i < Any.get_rSize(); i++)
+    {
+        for (size_t j = 0; j < Any.get_cSize(); j++)
+        {
+            std::cout << std::setprecision(precicion) << std::scientific << Any.get_elem(i, j) << "		";
+        }
+        std::cout << std::endl;
+    }
 }
