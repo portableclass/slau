@@ -21,29 +21,34 @@ Solver::~Solver() {}
 
 // 4) Other methods:
 Matrix Solver::solveCramer() {
+    if (this->A.det() != 0) {
+        const double bigDet = this->A.det();
+        const unsigned int size = this->A.get_rSize();
+        double* detI = new double[size];
+        Matrix* arrayA = new Matrix[size];
+        Matrix x(this->b.get_rSize(), this->b.get_cSize());
 
-    const unsigned int size = this->A.get_rSize();
-    const double bigDet = this->A.det();
-    double* detI = new double[size];
-    Matrix* arrayA = new Matrix[size];
-    Matrix x(this->b.get_rSize(), this->b.get_cSize());
+        for (size_t i = 0; i < size; i++)
+        {
+            arrayA[i] = this->A;
+            arrayA[i].set_column(i, this->b);
+            detI[i] = arrayA[i].det();
+            x.set_elem(i, 0, detI[i] / bigDet);
+        }
 
-    for (size_t i = 0; i < size; i++)
-    {
-        arrayA[i] = this->A;
-        arrayA[i].set_column(i, this->b);
-        detI[i] = arrayA[i].det();
-        x.set_elem(i, 0, detI[i] / bigDet);
+        return x;
     }
-
-    return x;
+    else {
+        std::cout << "ERROR! The determinant of the matrix A must be non-zero.";
+        return Matrix();
+    }
 }
 
 Matrix Solver::solveLU()
 {
     if (this->A.get_elem(0, 0) == 0) {
         // required = the number of the row in which A[required][0] != 0 
-        int required;
+        unsigned int required;
         for (required = 1; required < this->A.get_rSize(); required++)
         {
             if (this->A.get_elem(required, 0) != 0) {

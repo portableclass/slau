@@ -1,88 +1,11 @@
 #include "Matrix.h"
-#include <iostream>
-#include <vector>
-#include <string>
 #include <cassert>
+#include <algorithm>
 
-unsigned int get_row2swap(const unsigned int index_diag, const Matrix& Any)
-// Функция осуществляет поиск номера строки на которую необходимо заменить рассматриваемую,
-// с нулевым диагональным элементом (поиск ненулевого элемента в столбце с номером index_diag).
-// 
-// Если вернувшееся значение из функции index2swap равняется количеству стрк в матрице =>
-// => определитель матрицы ноль!
-{
-	unsigned int index2swap = index_diag;
-	while ((index2swap < Any.get_rSize()) && (Any.get_elem(index2swap, index_diag) == 0.0))
-	{
-		index2swap = index2swap + 1;
-	}
-
-	return index2swap;
-};
-
-bool swap_rows(const unsigned int index_diag, Matrix& Any)
-// Функция возвращает флаг bool:
-//		true, если была выполнена перестановка строк
-//		false, если перестановки строк не было
-{
-	bool swap_flag = false;
-
-	const unsigned int index2swap = get_row2swap(index_diag, Any);
-
-	if (index2swap != Any.get_rSize())
-	{
-		// Переключение флага:
-		swap_flag = true;
-
-		// Перестановка строк:
-		double buffer_value;
-		for (size_t col = index_diag; col < Any.get_cSize(); col++)
-		{
-			buffer_value = Any.get_elem(index_diag, col);
-			Any.set_elem(index_diag, col, Any.get_elem(index2swap, col));
-			Any.set_elem(index2swap, col, buffer_value);
-		}
-	}
-
-	return swap_flag;
-}
-
-//void column_reset(const unsigned int index_diag, Matrix& Any)
-//{
-//	double swaped_value;
-//	for (size_t row = index_diag + 1; row < Any.get_rSize(); row++)
-//	{
-//		swaped_value = Any.get_elem(row, index_diag);
-//		Any.set_elem(row, index_diag, 0.0);
-//
-//		for (size_t col = row; col < Any.get_cSize(); col++)
-//		{
-//			// add(Any, row, col, -swaped_value * Any.get_elem(index_diag, col));
-//			Any.set_elem(row, col, Any.get_elem(row, col) + -swaped_value * Any.get_elem(index_diag, col));
-//		}
-//	}
-//}
-void column_reset(const unsigned int index_diag, Matrix& Any)
-{
-	double swaped_value;
-	for (size_t row = index_diag + 1; row < Any.get_rSize(); row++)
-	{
-		swaped_value = Any.get_elem(row, index_diag);
-		Any.set_elem(row, index_diag, 0.0);
-
-		for (size_t col = index_diag + 1; col < Any.get_cSize(); col++)
-		{
-			// add(Any, row, col, -swaped_value * Any.get_elem(index_diag, col));
-			Any.set_elem(row, col, Any.get_elem(row, col) + -swaped_value * Any.get_elem(index_diag, col));
-		}
-	}
-}
-
-
-void add(Matrix& Any, unsigned int row, unsigned int col, const double added_value)
-{
-	Any.set_elem(row, col, Any.get_elem(row, col) + added_value);
-}
+void add(Matrix& Any, unsigned int row, unsigned int col, const double added_value);
+unsigned int get_row2swap(const unsigned int index_diag, const Matrix& Any);
+bool swap_rows(const unsigned int index_diag, Matrix& Any);
+void column_reset(const unsigned int index_diag, Matrix& Any);
 
 // -1) The private geter gets a linear index:
 unsigned int Matrix::get_index(unsigned int row, unsigned int col) const
@@ -338,4 +261,69 @@ Matrix operator*(const Matrix& left, const Matrix& right)
 	}
 
 	return result;
+}
+
+
+void add(Matrix& Any, unsigned int row, unsigned int col, const double added_value)
+{
+	Any.set_elem(row, col, Any.get_elem(row, col) + added_value);
+}
+
+unsigned int get_row2swap(const unsigned int index_diag, const Matrix& Any)
+// Функция осуществляет поиск номера строки на которую необходимо заменить рассматриваемую,
+// с нулевым диагональным элементом (поиск ненулевого элемента в столбце с номером index_diag).
+// 
+// Если вернувшееся значение из функции index2swap равняется количеству стрк в матрице =>
+// => определитель матрицы ноль!
+{
+	unsigned int index2swap = index_diag;
+	while ((index2swap < Any.get_rSize()) && (Any.get_elem(index2swap, index_diag) == 0.0))
+	{
+		index2swap = index2swap + 1;
+	}
+
+	return index2swap;
+};
+
+bool swap_rows(const unsigned int index_diag, Matrix& Any)
+// Функция возвращает флаг bool:
+//		true, если была выполнена перестановка строк
+//		false, если перестановки строк не было
+{
+	bool swap_flag = false;
+
+	const unsigned int index2swap = get_row2swap(index_diag, Any);
+
+	if (index2swap != Any.get_rSize())
+	{
+		// Переключение флага:
+		swap_flag = true;
+
+		// Перестановка строк:
+		double buffer_value;
+		for (size_t col = index_diag; col < Any.get_cSize(); col++)
+		{
+			buffer_value = Any.get_elem(index_diag, col);
+			Any.set_elem(index_diag, col, Any.get_elem(index2swap, col));
+			Any.set_elem(index2swap, col, buffer_value);
+		}
+	}
+
+	return swap_flag;
+}
+
+void column_reset(const unsigned int index_diag, Matrix& Any)
+{
+	double swaped_value;
+	for (size_t row = index_diag + 1; row < Any.get_rSize(); row++)
+	{
+		swaped_value = Any.get_elem(row, index_diag);
+		Any.set_elem(row, index_diag, 0.0);
+
+		for (size_t col = index_diag + 1; col < Any.get_cSize(); col++)
+		{
+			add(Any, row, col, -swaped_value * Any.get_elem(index_diag, col));
+			// Any.set_elem(row, col, Any.get_elem(row, col) + -swaped_value * Any.get_elem(index_diag, col));
+		}
+	}
 }

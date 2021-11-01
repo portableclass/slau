@@ -3,8 +3,6 @@
 //хранить матрицы L и U(разложение) в компактном виде(L\U);
 //уметь извлекать матрицы L и U из(L\U);
 //уметь извлекать элементы матриц L и U.
-#include <iostream>
-#include <vector>
 #include "Matrix.h"
 
 class Decomposition

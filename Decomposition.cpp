@@ -122,7 +122,11 @@ const double Decomposition::get_elemL(unsigned int row, unsigned int col) const
 const double Decomposition::get_elemU(unsigned int row, unsigned int col) const
 {
     // 0. Checking of the indexes!
-    assert(((row < get_size()) && (col < get_size())) && "ERROR_MATRIX_INDEX_IS_OUT_SIZE");
+    //assert(((row < get_size()) && (col < get_size())) && "ERROR_MATRIX_INDEX_IS_OUT_SIZE");
+    if (((row < get_size()) && (col < get_size())) && "ERROR_MATRIX_INDEX_IS_OUT_SIZE")
+    {
+        throw "Error, matrix index is out size";
+    }
 
     return get_U().get_elem(row, col);
 }
@@ -134,11 +138,12 @@ const double Decomposition::get_size() const
 
 const Matrix Decomposition::get_L() const
 {
-    Matrix L(get_size(), get_size());
+    const unsigned int size = this->LU.get_cSize();
+    Matrix L(size, size);
 
-    for (size_t i = 0; i < get_size(); i++)
+    for (size_t i = 0; i < size; i++)
     {
-        for (size_t j = 0; j < get_size(); j++)
+        for (size_t j = 0; j < size; j++)
         {
             if (i < j)
                 L.set_elem(i, j, 0);
@@ -148,9 +153,7 @@ const Matrix Decomposition::get_L() const
         L.set_elem(i, i, 1);
     }
 
-    /*unsigned int size = L.get_cSize();
-
-    std::cout << std::endl;
+    /*std::cout << std::endl;
     std::cout << "L" << std::endl;
     for (size_t i = 0; i < size; i++)
     {
@@ -168,11 +171,12 @@ const Matrix Decomposition::get_L() const
 
 const Matrix Decomposition::get_U() const
 {
-    Matrix U(get_size(), get_size());
+    const unsigned int size = this->LU.get_cSize();
+    Matrix U(size, size);
 
-    for (size_t i = 0; i < get_size(); i++)
+    for (size_t i = 0; i < size; i++)
     {
-        for (size_t j = 0; j < get_size(); j++)
+        for (size_t j = 0; j < size; j++)
         {
             if (i <= j)
                 U.set_elem(i, j, this->LU.get_elem(i, j));
@@ -180,8 +184,6 @@ const Matrix Decomposition::get_U() const
                 U.set_elem(i, j, 0);
         }
     }
-
-    unsigned int size = U.get_cSize();
 
     /*std::cout << std::endl;
     std::cout << "U" << std::endl;

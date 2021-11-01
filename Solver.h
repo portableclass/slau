@@ -2,7 +2,6 @@
 
 #include "Matrix.h"
 #include "Decomposition.h"
-#include <vector>
 
 class Solver
 {

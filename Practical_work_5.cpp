@@ -8,22 +8,16 @@
 #include <sstream>
 #include <cassert>
 
-//#define NDEBUG 
+#define NDEBUG
 
 const Matrix read(std::string fullway2data);
 void print(const Matrix& Any, unsigned int precicion);
 
 int main()
 {
-    // В релизной версии программы необходимо отключить все макросы проверки (assert).
-    // Все провеки, связанные с загрузкой матрицы из файла и корректности размеров,
-    // должны быть явно реализованы в main. Релизная версия программы всегда должна завершаться
-    // с кодом 0. Другой код, свидетельствующий об ошибке,в отлаженной программе возникать не должен.
-    // 
-    // Отключить все макросы необходимо добавив дерективу дял препроцессора в этом файле.
-    // Добавление директивы пропусти добавление всех строк содержащих assert.
+    // std::string fullway2data = "C:\\Users\\YASH\\Downloads\\Файлы программы\\input.txt";
 
-    std::string fullway2data = "C:\\Users\\YASH\\Downloads\\Файлы программы\\input.txt";
+    std::string fullway2data = /* enter the path to the file */;
     Matrix A = read(fullway2data);
     Matrix x_exist(A.get_cSize(), 1);
 
